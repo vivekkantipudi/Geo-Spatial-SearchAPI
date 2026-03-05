@@ -1,0 +1,11 @@
+{
+    "name": "geo-ingestion",
+    "version": "1.0.0",
+    "description": "Data ingestion script for geo-spatial search project",
+    "main": "ingest.js",
+    "dependencies": {
+        "@opensearch-project/opensearch": "^2.5.0",
+        "csv-parse": "^5.5.3",
+        "pg": "^8.11.3"
+    }
+}

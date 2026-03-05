@@ -1,0 +1,44 @@
+FROM python:3.11-slim AS generator
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY scripts/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy scripts
+COPY scripts/generate_data.py ./
+
+# ─────────────────────────────────────────────
+FROM node:20-alpine AS ingestor
+
+WORKDIR /app
+
+# Install Node dependencies for ingestion
+COPY scripts/package.json ./
+RUN npm install
+
+# Copy ingestion script
+COPY scripts/ingest.js ./
+
+# Final stage – both Python and Node
+FROM node:20-alpine
+
+RUN apk add --no-cache python3 py3-pip
+
+WORKDIR /app
+
+# Python deps
+COPY scripts/requirements.txt ./
+RUN pip3 install --no-cache-dir --retries 10 --timeout 1000 --break-system-packages -r requirements.txt
+
+# Node deps
+COPY scripts/package.json ./
+RUN npm install
+
+# Scripts + data dir
+COPY scripts/generate_data.py ./
+COPY scripts/ingest.js ./
+RUN mkdir -p /app/data
+
+CMD ["sh", "-c", "python3 generate_data.py && node ingest.js"]
