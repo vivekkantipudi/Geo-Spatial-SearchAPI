@@ -1,0 +1,4 @@
+numpy
+faker
+psycopg2-binary
+opensearch-py
